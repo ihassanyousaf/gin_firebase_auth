@@ -54,13 +54,21 @@ func New(cfg *Config) *FirebaseAuth {
 func (f *FirebaseAuth) Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
+		if authHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Authorization header is missing",
+			})
+			return
+		}
 		token := strings.Replace(authHeader, "Bearer ", "", 1)
 		idToken, err := f.auth.VerifyIDToken(context.Background(), token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
 				"message": err,
 			})
+			return
 		}
 		c.Set(tokenKey, idToken)
 		c.Next()
