@@ -61,7 +61,7 @@ func (f *FirebaseAuth) Auth() gin.HandlerFunc {
 			})
 			return
 		}
-		token := strings.Replace(authHeader, "Bearer ", "", 1)
+		token := strings.TrimPrefix(authHeader, "Bearer ")
 		idToken, err := f.auth.VerifyIDToken(context.Background(), token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
