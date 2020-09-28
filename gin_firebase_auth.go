@@ -55,6 +55,7 @@ func (f *FirebaseAuth) Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
+			log.Println("Authorization header is missing")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
 				"message": "Authorization header is missing",
@@ -64,9 +65,10 @@ func (f *FirebaseAuth) Auth() gin.HandlerFunc {
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 		idToken, err := f.auth.VerifyIDToken(context.Background(), token)
 		if err != nil {
+			log.Println(err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
-				"message": err,
+				"message": err.Error(),
 			})
 			return
 		}
